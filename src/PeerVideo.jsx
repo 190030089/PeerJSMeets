@@ -114,7 +114,7 @@ export default function Peervideo() {
         <>
             {initalView == 'initial' ? <div className=''>
                 <div className='MeetHeading'>
-                    <h1>Welcome to ATT Meets</h1><br></br>
+                    <h1>Welcome to DTT Meets</h1><br></br>
                     <h2>Your ID is  {peerId}</h2>
                 </div>
 
