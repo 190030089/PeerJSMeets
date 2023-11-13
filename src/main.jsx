@@ -1,14 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import PeerVideo from "./PeerVideo.jsx";
 import "./index.css";
 import { BrowserRouter } from "react-router-dom";
+import Lander from "./Lander";
+import { PeerProvider } from "./Context";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-   
-      
-      <PeerVideo></PeerVideo>
-   
-  </React.StrictMode>
+  <BrowserRouter>
+    <PeerProvider>
+      <Lander></Lander>
+    </PeerProvider>
+  </BrowserRouter>
 );

@@ -1,0 +1,32 @@
+.MainContainer {
+  height: 92vh;
+}
+
+.MainVideo {
+  width: 95vw;
+  height: 100%;
+}
+
+.MainVideo > video {
+  object-fit: cover;
+}
+
+.hidden {
+  visibility: hidden;
+  max-width: 0px;
+  max-height: 0px;
+  overflow: hidden;
+}
+
+.outgoing {
+  width: 250px;
+  height: 150px;
+  position: absolute;
+  right: 2.5vw;
+  bottom: 15px;
+  z-index: 10;
+}
+
+.outgoing > video {
+  object-fit: cover;
+}
