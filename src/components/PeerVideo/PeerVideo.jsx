@@ -111,7 +111,6 @@ export default function Peervideo() {
           <video
             height={"100%"}
             width={"100%"}
-            muted
             autoPlay
             className="box-shadow4"
             ref={incommingVideo}
