@@ -1,0 +1,26 @@
+.videoContainer {
+  width: 50vw;
+  height: 500px;
+}
+
+.videoContainer > video {
+  object-fit: fill;
+}
+
+.iconButton {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+}
+
+.iconButtonHover {
+  background-color: #ffffff47;
+}
+
+.iconButtonHover:hover {
+  background-color: #ffffffbd;
+}
+
+.iconContainer {
+  top: -84px;
+}
