@@ -1,10 +1,10 @@
 .MainContainer {
-  height: 92vh;
+  height: 93vh;
 }
 
 .MainVideo {
   width: 95vw;
-  height: 100%;
+  min-height: 100%;
 }
 
 .MainVideo > video {
@@ -15,18 +15,50 @@
   visibility: hidden;
   max-width: 0px;
   max-height: 0px;
+  display: none;
   overflow: hidden;
 }
 
 .outgoing {
-  width: 250px;
-  height: 150px;
+ width: auto;
+  height: 150px ;
   position: absolute;
   right: 2.5vw;
-  bottom: 15px;
+  bottom: 20px;
   z-index: 10;
 }
 
 .outgoing > video {
-  object-fit: cover;
+  object-fit:contain;
+}
+
+.controls {
+  left: 0px;
+  right: 0px;
+  bottom: 6vh;
+}
+@media screen and (max-width: 1024px ) and (min-width: 767px){
+  .outgoing{
+    height: 200px ;
+  }
+  .controls{
+    padding-left: 50px;
+    justify-content: start;
+  }
+
+}
+
+
+
+@media screen and (max-width: 767px){
+  .outgoing{
+    width: auto;
+    height: 100px;
+  }
+
+  .controls{
+    padding-left: 30px;
+    justify-content: start;
+  }
+  
 }

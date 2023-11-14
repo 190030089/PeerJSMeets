@@ -1,15 +1,27 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import Peer from "peerjs";
 import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import { PeerContext } from "../../Context";
 import styles from "./PeerVideo.module.css";
+import { IconButton } from "../Home/Home";
+import { CallMessages, audioIcon, audioIconSelected, endCallIcon, videoIcon, videoIconSelected} from "../../constants";
+import Modal from "../../Modal";
 
-export default function Peervideo() {
+export default function Peervideo(props) {
   const [peerId, setPeerId] = useState(null);
   const [remotePeerIdValue, setRemotePeerIdValue] = useState("");
 
-  const meetId = useRef(null);
+  const [callState, setCallState] = useState({ callStatus: true, msg: CallMessages.callConnectionError })
+
+
 
   const incommingVideo = useRef(null);
   const outgoingVideoRef = useRef(null);
@@ -19,7 +31,8 @@ export default function Peervideo() {
 
   const currentPeer = useRef(null);
 
-  const params = new URL(window.location.href).searchParams;
+
+  const callRef = useRef(null);
 
   const socket = io("https://dtt-meets-backend.adaptable.app/", {
     transports: ["websocket", "polling"],
@@ -27,9 +40,16 @@ export default function Peervideo() {
 
   const context = useContext(PeerContext);
 
+  const meetId = context?.data?.meetId;
+
   const mediaState = useMemo(() => {
     return context?.data?.mediaState;
   }, [context?.data?.mediaState]);
+
+  const setMediaState = useCallback(
+    (mediaState) => context?.setData({ ...context?.data, mediaState }),
+    [context?.data]
+  );
 
   useEffect(() => {
     if (mediaState?.audio || mediaState.video) {
@@ -37,36 +57,50 @@ export default function Peervideo() {
         outgoingVideoRef.current.srcObject = stream;
         outgoingMainVideoRef.current.srcObject = stream;
       });
+    } else {
+      outgoingVideoRef.current.srcObject = null;
+      outgoingMainVideoRef.current.srcObject = null;
     }
   }, [mediaState]);
 
   useEffect(() => {
     let peer = new Peer();
-    console.log("id params", params.get("id"));
-    let meetId = params.get("id");
 
     peer.on("open", (id) => {
-      console.log(id);
       setPeerId(id);
-      if (params.get("id") != undefined) {
+      console.log("peerId : ",id)
+      if (meetId != undefined) {
         socket.emit("join", { roomid: meetId, peerid: id });
       }
+
       socket.on("userJoined", (peeId) => {
-        console.log("Heelo ", peeId, " jj ", id);
+        console.log("userJoined ",peeId)
         if (peeId.data != undefined && peeId.data != id && peeId.result < 3) {
           var getUserMedia =
             navigator.getUserMedia ||
             navigator.webkitGetUserMedia ||
             navigator.mozGetUserMedia;
-          console.log("hello userJoined");
+          let call = undefined;
           getUserMedia({ video: true, audio: true }, (mediaStream) => {
-            outgoingVideoRef.current.srcObject = mediaStream;
-            const call = currentPeer.current.call(peeId.data, mediaStream);
+            call = currentPeer.current.call(peeId.data, mediaStream);
+            callRef.current = call;
             setRemotePeerIdValue(call.peer);
             valueRef.current = call.peer;
             call.on("stream", (remoteStream) => {
               incommingVideo.current.srcObject = remoteStream;
             });
+            call.on('close', () => {
+              console.log('disconneccted  ')
+
+              setCallState({ ...callState, callStatus: false, msg: CallMessages.disconnectedMsg })
+            })
+            const senders = call.peerConnection.getSenders();
+            if (!mediaState.audio) {
+              senders?.[0]?.replaceTrack(undefined);
+            }
+            if (!mediaState.video) {
+              senders?.[1]?.replaceTrack(undefined);
+            }
           });
         }
       });
@@ -77,50 +111,107 @@ export default function Peervideo() {
         navigator.getUserMedia ||
         navigator.webkitGetUserMedia ||
         navigator.mozGetUserMedia;
-
-      getUserMedia({ video: true, audio: true }, (mediaStream) => {
-        outgoingVideoRef.current.srcObject = mediaStream;
-        call.answer(mediaStream);
-        console.log("call meta data", call.metadata, " /n ", call);
-        setRemotePeerIdValue(call.peer);
-        valueRef.current = call.peer;
-        call.on("stream", (remoteStream) => {
-          incommingVideo.current.srcObject = remoteStream;
-        });
+      callRef.current = call;
+      getUserMedia(
+        {
+          audio: true,
+          video: true,
+        },
+        (mediaStream) => {
+          call.answer(mediaStream);
+          const senders = call.peerConnection.getSenders();
+          if (!mediaState.audio) {
+            senders?.[0]?.replaceTrack(undefined);
+          }
+          if (!mediaState.video) {
+            senders?.[1]?.replaceTrack(undefined);
+          }
+        }
+      );
+      setRemotePeerIdValue(call.peer);
+      valueRef.current = call.peer;
+      call.on("stream", (remoteStream) => {
+        incommingVideo.current.srcObject = remoteStream;
       });
+
+      call.on('close', () => {
+        console.log('disconneccted  ')
+
+        setCallState({ ...callState, callStatus: false, msg: CallMessages.disconnectedMsg })
+      })
     });
+
+
 
     currentPeer.current = peer;
   }, []);
 
+  useEffect(() => {
+    if (callRef.current) {
+      let callSate = callRef.current;
+      var getUserMedia =
+        navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia;
+      if (mediaState.audio || mediaState.video) {
+        getUserMedia(mediaState, (stream) => {
+          const senders = callSate.peerConnection.getSenders();
+          senders?.[0]?.replaceTrack(stream?.getAudioTracks()[0]);
+          senders?.[1]?.replaceTrack(stream?.getVideoTracks()[0]);
+        });
+      } else {
+        const senders = callSate.peerConnection.getSenders();
+        senders?.[0]?.replaceTrack(undefined);
+        senders?.[1]?.replaceTrack(undefined);
+      }
+    }
+  }, [mediaState]);
+
+  const disconnectCall = () => {
+    if (callRef?.current) {
+      callRef.current.close();
+      
+      
+    }
+    setCallState({ ...callState, callStatus: false, msg: CallMessages.disconnectedMsg })
+
+  }
+
   const hasRemote = () => {
-    return valueRef.current.length > 0;
+    console.log(valueRef?.current?.length," ggg")
+    return valueRef.current?.length > 0;
+  };
+
+  const hasVideo = (ref) => {
+    return true;
   };
 
   return (
     <>
       <div
-        className={`${styles.MainContainer} flex justify-center pad-md bg-gray-300`}
+        className={`${styles.MainContainer} flex flex-column justify-center flex-items-center pad-t-sm pad-md bg-gray-300`}
       >
         <div
           id="incoming"
-          className={` ${
-            !hasRemote() ? styles.hidden : styles.MainVideo
-          } radius-lg overflow-hidden `}
+          className={` ${!hasRemote() ? styles.hidden : `${styles.MainVideo} `
+            } radius-lg overflow-hidden border border-cobalt-600 bg-white`}
         >
-          <video
-            height={"100%"}
-            width={"100%"}
-            autoPlay
-            className="box-shadow4"
-            ref={incommingVideo}
-          ></video>
+          {hasVideo(incommingVideo) ? (
+            <video
+              height={"100%"}
+              width={"100%"}
+              autoPlay
+              className="box-shadow4"
+              ref={incommingVideo}
+            ></video>
+          ) : (
+            <div>No Cam</div>
+          )}
         </div>
         <div
           id="outgoingMain"
-          className={` ${
-            hasRemote() ? styles.hidden : styles.MainVideo
-          } radius-lg overflow-hidden `}
+          className={` ${hasRemote() ? styles.hidden : styles.MainVideo
+            } radius-lg overflow-hidden border border-cobalt-600 bg-white`}
         >
           <video
             height={"100%"}
@@ -131,12 +222,13 @@ export default function Peervideo() {
             ref={outgoingMainVideoRef}
           ></video>
         </div>
+
         <div>
           <div
             id="outgoing"
             className={`${
-              !hasRemote() ? styles.hidden : styles.outgoing
-            } mar-sm radius-lg overflow-hidden `}
+              !hasRemote() || !callState?.callStatus ? styles.hidden : styles.outgoing
+            } mar-sm radius-lg overflow-hidden border border-cobalt-600 bg-white`}
           >
             <video
               height={"100%"}
@@ -148,7 +240,45 @@ export default function Peervideo() {
             ></video>
           </div>
         </div>
+        {
+          callState?.callStatus &&
+          <div
+            className={` ${styles.controls} width-full flex justify-center pad-t-sm absolute z5`}
+          >
+            <IconButton
+              default={!mediaState?.audio}
+              icon={audioIcon}
+              iconSeleted={audioIconSelected}
+              className={`mar-r-md ${styles.controlsButton}`}
+              onSelected={(audioState) => {
+                setMediaState({ ...mediaState, audio: audioState });
+              }}
+            ></IconButton>
+            <IconButton
+              default={!mediaState?.video}
+              icon={videoIcon}
+              iconSeleted={videoIconSelected}
+              className={`mar-r-md ${styles.controlsButton}`}
+              onSelected={(videoState) => {
+                setMediaState({ ...mediaState, video: videoState });
+              }}
+            ></IconButton>
+            <IconButton
+              icon={endCallIcon}
+              className={""}
+              iconSeleted={endCallIcon}
+              onSelected={() => { disconnectCall() }}
+            >
+            </IconButton>
+          </div>
+        }
       </div>
+      {!callState.callStatus &&
+       
+        <div>
+          <Modal setIsOpen={(e)=>{props.setStart(e)}}> {callState.msg}</Modal>
+        </div> 
+       }
     </>
   );
 }

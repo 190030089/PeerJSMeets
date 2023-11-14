@@ -1,13 +1,13 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import {
   audioIcon,
   audioIconSelected,
   videoIcon,
   videoIconSelected,
 } from "../../constants";
-import Navbar from "../../Navbar";
 import styles from "./Home.module.css";
 import { PeerContext } from "../../Context";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function Home(props) {
   const videRef = useRef(null);
@@ -17,7 +17,23 @@ export default function Home(props) {
     audio: true,
   });
 
+  const params = useParams();
+
+  const navigate = useNavigate();
+
   const context = useContext(PeerContext);
+
+  const meetId = context?.data?.meetId;
+
+  const [idState, setIdState] = useState(meetId);
+
+  useEffect(() => {
+    setIdState(meetId);
+  }, [meetId]);
+
+  useEffect(() => {
+    context?.setData({ ...context?.data, meetId: params["id"] });
+  }, []);
 
   useEffect(() => {
     if (mediaState?.audio || mediaState.video) {
@@ -28,14 +44,23 @@ export default function Home(props) {
   }, [mediaState]);
 
   const onJoinMeeting = (e) => {
-    props?.setStart(true);
     const data = context?.data;
-    context?.setData({ ...data, mediaState });
+    if (idState && idState?.length > 0) {
+      props?.setStart(true);
+      context?.setData({
+        ...data,
+        mediaState,
+        meetId: meetId ?? idState,
+      });
+      if (!params["id"]) {
+        navigate(idState);
+      }
+    }
   };
 
   return (
     <>
-      <div className="flex flex-centered pad-t-lg">
+      <div className="flex flex-centered flex-column-sm pad-t-lg">
         <div className="flex-2 flex flex-column flex-centered">
           <div
             className={`${styles.videoContainer} radius-md overflow-hidden bg-gray-600 flex flex-centered`}
@@ -64,15 +89,29 @@ export default function Home(props) {
             <IconButton
               icon={videoIcon}
               iconSeleted={videoIconSelected}
-              className={""}
+              className={"mar-r-md"}
               onSelected={(videoState) => {
                 setMediaState({ ...mediaState, video: videoState });
               }}
             ></IconButton>
           </div>
         </div>
-        <div className="flex flex-1 flex-column flex-centered pad-r-md">
-          <button onClick={(e) => onJoinMeeting(e)} className="btn-primary">
+        <div className="flex flex-1 flex-column pad-r-lg pad-r-none-sm">
+            <div className="pad-b-lg">
+              <label className="type-sm  pad-l-xxxs css-bold" >Meet ID</label>
+              <input
+                className="textfield"
+                placeholder="Enter Meeting ID"
+                minLength={4}
+                onChange={(e) => setIdState(e?.target?.value)}
+                value={idState}
+              ></input>
+            </div>
+          <button
+            onClick={(e) => onJoinMeeting(e)}
+            className="btn-primary"
+            disabled={!idState || idState?.length < 1}
+          >
             <div className="text-base ">Join the meeting</div>
           </button>
         </div>
@@ -81,8 +120,8 @@ export default function Home(props) {
   );
 }
 
-const IconButton = (props) => {
-  const [selected, setSelected] = useState(false);
+export const IconButton = (props) => {
+  const [selected, setSelected] = useState(props?.default ?? false);
 
   const onButtonSlected = (e) => {
     const selectState = !selected;

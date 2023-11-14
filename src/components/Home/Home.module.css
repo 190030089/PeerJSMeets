@@ -3,6 +3,12 @@
   height: 500px;
 }
 
+@media screen and (max-width: 767px){
+    .videoContainer{
+      width: 80vw;
+      height: 300px;
+    }
+}
 .videoContainer > video {
   object-fit: fill;
 }
@@ -13,9 +19,12 @@
   border-radius: 50%;
 }
 
+.iconButtonHover {
+  background-color: #ffffff47;
+}
+
 .iconButtonHover:hover {
   background-color: #ffffffbd;
-  border: none;
 }
 
 .iconContainer {
