@@ -3,6 +3,12 @@
   height: 500px;
 }
 
+@media screen and (max-width: 767px){
+    .videoContainer{
+      width: 80vw;
+      height: 300px;
+    }
+}
 .videoContainer > video {
   object-fit: fill;
 }

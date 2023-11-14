@@ -20,20 +20,45 @@
 }
 
 .outgoing {
-  width: 250px;
-  height: 150px;
+ width: auto;
+  height: 150px ;
   position: absolute;
   right: 2.5vw;
-  bottom: 15px;
+  bottom: 20px;
   z-index: 10;
 }
 
 .outgoing > video {
-  object-fit: cover;
+  object-fit:contain;
 }
 
 .controls {
   left: 0px;
   right: 0px;
-  bottom: 5vh;
+  bottom: 6vh;
+}
+@media screen and (max-width: 1024px ) and (min-width: 767px){
+  .outgoing{
+    height: 200px ;
+  }
+  .controls{
+    padding-left: 50px;
+    justify-content: start;
+  }
+
+}
+
+
+
+@media screen and (max-width: 767px){
+  .outgoing{
+    width: auto;
+    height: 100px;
+  }
+
+  .controls{
+    padding-left: 30px;
+    justify-content: start;
+  }
+  
 }

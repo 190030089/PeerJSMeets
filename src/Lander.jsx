@@ -8,7 +8,7 @@ export default function Lander(props) {
   const [start, setStart] = useState(false);
 
   const Page = () =>
-    start ? <PeerVideo /> : <Home start={start} setStart={setStart} />;
+    start ? <PeerVideo setStart={setStart}/> : <Home start={start} setStart={setStart} />;
 
   return (
     <div>

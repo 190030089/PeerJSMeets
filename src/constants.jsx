@@ -49,3 +49,13 @@ export const attIcon = (
     ></path>
   </svg>
 );
+
+export const endCallIcon = (
+  <svg className="bg-red-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="256" height="256"><linearGradient id="a" x1="13.675" x2="50.652" y1="50.431" y2="13.454" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#d3061a" className="stopColord3061a svgShape"></stop><stop offset="1" stop-color="#ff615b" className="stopColorff615b svgShape"></stop></linearGradient><path fill="#ffffff" d="M44.7 32.4c0 .8-.3 1.6-.9 2.1-.5.5-1.2.8-1.9.8h-1.6c-.8 0-1.5-.3-2-.8s-.9-1.2-.9-2v-1.1c0-.5.1-1 .4-1.5l.1-.2c.1-.1.1-.3 0-.4 0-.1-.2-.2-.3-.3l-.2-.1c-3.4-1.2-7-1.2-10.3.2l-.2.1c-.1.1-.2.1-.3.3v.4l.1.2c.2.4.3.7.3 1.1v1.1c0 .8-.3 1.6-.9 2.1-.5.5-1.2.8-1.9.8h-1.6c-1.6 0-2.8-1.2-2.9-2.7v-1.1c0-.3 0-.6.1-.9.2-.8.7-1.5 1.5-2.1 6.2-5 15.1-5.2 21.6-.5 1.4 1 1.8 2.3 1.7 2.9V31.4l.1 1z" className="colorfff svgShape"></path></svg>
+)
+
+
+export const CallMessages = {
+  "callConnectionError":"We are unable to connect you check your network and try again.",
+  "disconnectedMsg":`Your Call Ended. Thanks for using DTT Meets.`
+}

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import {
   audioIcon,
   audioIconSelected,
@@ -60,7 +60,7 @@ export default function Home(props) {
 
   return (
     <>
-      <div className="flex flex-centered pad-t-lg">
+      <div className="flex flex-centered flex-column-sm pad-t-lg">
         <div className="flex-2 flex flex-column flex-centered">
           <div
             className={`${styles.videoContainer} radius-md overflow-hidden bg-gray-600 flex flex-centered`}
@@ -89,24 +89,24 @@ export default function Home(props) {
             <IconButton
               icon={videoIcon}
               iconSeleted={videoIconSelected}
-              className={""}
+              className={"mar-r-md"}
               onSelected={(videoState) => {
                 setMediaState({ ...mediaState, video: videoState });
               }}
             ></IconButton>
           </div>
         </div>
-        <div className="flex flex-1 flex-column pad-r-lg">
-          {(!meetId || meetId?.length < 1) && (
+        <div className="flex flex-1 flex-column pad-r-lg pad-r-none-sm">
             <div className="pad-b-lg">
+              <label className="type-sm  pad-l-xxxs css-bold" >Meet ID</label>
               <input
                 className="textfield"
                 placeholder="Enter Meeting ID"
                 minLength={4}
                 onChange={(e) => setIdState(e?.target?.value)}
+                value={idState}
               ></input>
             </div>
-          )}
           <button
             onClick={(e) => onJoinMeeting(e)}
             className="btn-primary"

@@ -12,16 +12,15 @@ import { io } from "socket.io-client";
 import { PeerContext } from "../../Context";
 import styles from "./PeerVideo.module.css";
 import { IconButton } from "../Home/Home";
-import {
-  audioIcon,
-  audioIconSelected,
-  videoIcon,
-  videoIconSelected,
-} from "../../constants";
+import { CallMessages, audioIcon, audioIconSelected, endCallIcon, videoIcon, videoIconSelected} from "../../constants";
+import Modal from "../../Modal";
 
-export default function Peervideo() {
+export default function Peervideo(props) {
   const [peerId, setPeerId] = useState(null);
   const [remotePeerIdValue, setRemotePeerIdValue] = useState("");
+
+  const [callState, setCallState] = useState({ callStatus: true, msg: CallMessages.callConnectionError })
+
 
 
   const incommingVideo = useRef(null);
@@ -69,12 +68,13 @@ export default function Peervideo() {
 
     peer.on("open", (id) => {
       setPeerId(id);
-
+      console.log("peerId : ",id)
       if (meetId != undefined) {
         socket.emit("join", { roomid: meetId, peerid: id });
       }
 
       socket.on("userJoined", (peeId) => {
+        console.log("userJoined ",peeId)
         if (peeId.data != undefined && peeId.data != id && peeId.result < 3) {
           var getUserMedia =
             navigator.getUserMedia ||
@@ -89,6 +89,11 @@ export default function Peervideo() {
             call.on("stream", (remoteStream) => {
               incommingVideo.current.srcObject = remoteStream;
             });
+            call.on('close', () => {
+              console.log('disconneccted  ')
+
+              setCallState({ ...callState, callStatus: false, msg: CallMessages.disconnectedMsg })
+            })
             const senders = call.peerConnection.getSenders();
             if (!mediaState.audio) {
               senders?.[0]?.replaceTrack(undefined);
@@ -128,7 +133,15 @@ export default function Peervideo() {
       call.on("stream", (remoteStream) => {
         incommingVideo.current.srcObject = remoteStream;
       });
+
+      call.on('close', () => {
+        console.log('disconneccted  ')
+
+        setCallState({ ...callState, callStatus: false, msg: CallMessages.disconnectedMsg })
+      })
     });
+
+
 
     currentPeer.current = peer;
   }, []);
@@ -154,8 +167,19 @@ export default function Peervideo() {
     }
   }, [mediaState]);
 
+  const disconnectCall = () => {
+    if (callRef?.current) {
+      callRef.current.close();
+      
+      
+    }
+    setCallState({ ...callState, callStatus: false, msg: CallMessages.disconnectedMsg })
+
+  }
+
   const hasRemote = () => {
-    return valueRef.current.length > 0;
+    console.log(valueRef?.current?.length," ggg")
+    return valueRef.current?.length > 0;
   };
 
   const hasVideo = (ref) => {
@@ -165,13 +189,12 @@ export default function Peervideo() {
   return (
     <>
       <div
-        className={`${styles.MainContainer} flex flex-column justify-center pad-md bg-gray-300`}
+        className={`${styles.MainContainer} flex flex-column justify-center flex-items-center pad-t-sm pad-md bg-gray-300`}
       >
         <div
           id="incoming"
-          className={` ${
-            !hasRemote() ? styles.hidden : `${styles.MainVideo} `
-          } radius-lg overflow-hidden border border-cobalt-600 bg-white`}
+          className={` ${!hasRemote() ? styles.hidden : `${styles.MainVideo} `
+            } radius-lg overflow-hidden border border-cobalt-600 bg-white`}
         >
           {hasVideo(incommingVideo) ? (
             <video
@@ -187,9 +210,8 @@ export default function Peervideo() {
         </div>
         <div
           id="outgoingMain"
-          className={` ${
-            hasRemote() ? styles.hidden : styles.MainVideo
-          } radius-lg overflow-hidden border border-cobalt-600 bg-white`}
+          className={` ${hasRemote() ? styles.hidden : styles.MainVideo
+            } radius-lg overflow-hidden border border-cobalt-600 bg-white`}
         >
           <video
             height={"100%"}
@@ -205,7 +227,7 @@ export default function Peervideo() {
           <div
             id="outgoing"
             className={`${
-              !hasRemote() ? styles.hidden : styles.outgoing
+              !hasRemote() || !callState?.callStatus ? styles.hidden : styles.outgoing
             } mar-sm radius-lg overflow-hidden border border-cobalt-600 bg-white`}
           >
             <video
@@ -218,29 +240,45 @@ export default function Peervideo() {
             ></video>
           </div>
         </div>
-        <div
-          className={` ${styles.controls} width-full flex justify-center pad-t-sm absolute z5`}
-        >
-          <IconButton
-            default={!mediaState?.audio}
-            icon={audioIcon}
-            iconSeleted={audioIconSelected}
-            className={`mar-r-md ${styles.controlsButton}`}
-            onSelected={(audioState) => {
-              setMediaState({ ...mediaState, audio: audioState });
-            }}
-          ></IconButton>
-          <IconButton
-            default={!mediaState?.video}
-            icon={videoIcon}
-            iconSeleted={videoIconSelected}
-            className={`${styles.controlsButton}`}
-            onSelected={(videoState) => {
-              setMediaState({ ...mediaState, video: videoState });
-            }}
-          ></IconButton>
-        </div>
+        {
+          callState?.callStatus &&
+          <div
+            className={` ${styles.controls} width-full flex justify-center pad-t-sm absolute z5`}
+          >
+            <IconButton
+              default={!mediaState?.audio}
+              icon={audioIcon}
+              iconSeleted={audioIconSelected}
+              className={`mar-r-md ${styles.controlsButton}`}
+              onSelected={(audioState) => {
+                setMediaState({ ...mediaState, audio: audioState });
+              }}
+            ></IconButton>
+            <IconButton
+              default={!mediaState?.video}
+              icon={videoIcon}
+              iconSeleted={videoIconSelected}
+              className={`mar-r-md ${styles.controlsButton}`}
+              onSelected={(videoState) => {
+                setMediaState({ ...mediaState, video: videoState });
+              }}
+            ></IconButton>
+            <IconButton
+              icon={endCallIcon}
+              className={""}
+              iconSeleted={endCallIcon}
+              onSelected={() => { disconnectCall() }}
+            >
+            </IconButton>
+          </div>
+        }
       </div>
+      {!callState.callStatus &&
+       
+        <div>
+          <Modal setIsOpen={(e)=>{props.setStart(e)}}> {callState.msg}</Modal>
+        </div> 
+       }
     </>
   );
 }
