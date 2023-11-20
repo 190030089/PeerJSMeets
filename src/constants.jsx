@@ -57,5 +57,5 @@ export const endCallIcon = (
 
 export const CallMessages = {
   "callConnectionError":"We are unable to connect you check your network and try again.",
-  "disconnectedMsg":`Your Call Ended. Thanks for using DTT Meets.`
+  "disconnectedMsg":`The Meeting Ended. Thanks for utilizing DTT Meets.`
 }
