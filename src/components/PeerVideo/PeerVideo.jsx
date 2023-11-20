@@ -276,7 +276,7 @@ export default function Peervideo(props) {
       {!callState.callStatus &&
        
         <div>
-          <Modal setIsOpen={(e)=>{props.setStart(e)}}> {callState.msg}</Modal>
+          <Modal setIsOpen={(e)=>{props.setStart(e)}}> <div className="mar-t-md">{callState.msg}</div></Modal>
         </div> 
        }
     </>

@@ -41,7 +41,7 @@ export default function Home(props) {
         videRef.current.srcObject = stream;
       });
     }
-  }, [mediaState]);
+  }, [mediaState.video]);
 
   const onJoinMeeting = (e) => {
     const data = context?.data;
@@ -60,7 +60,7 @@ export default function Home(props) {
 
   return (
     <>
-      <div className="flex flex-centered flex-column-sm pad-t-lg">
+      <div className={"flex flex-centered flex-column-sm pad-t-lg "+styles.mainContainer}>
         <div className="flex-2 flex flex-column flex-centered">
           <div
             className={`${styles.videoContainer} radius-md overflow-hidden bg-gray-600 flex flex-centered`}
