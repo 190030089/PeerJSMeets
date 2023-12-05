@@ -12,13 +12,13 @@ import { io } from "socket.io-client";
 import { PeerContext } from "../../Context";
 import styles from "./PeerVideo.module.css";
 import { IconButton } from "../Home/Home";
-import { CallMessages, audioIcon, audioIconSelected, endCallIcon, videoIcon, videoIconSelected} from "../../constants";
+import { CallMessages, audioIcon, audioIconSelected, endCallIcon, screenshare, videoIcon, videoIconSelected} from "../../constants";
 import Modal from "../../Modal";
 
 export default function Peervideo(props) {
   const [peerId, setPeerId] = useState(null);
   const [remotePeerIdValue, setRemotePeerIdValue] = useState("");
-
+  const currentStream = useRef(null);
   const [callState, setCallState] = useState({ callStatus: true, msg: CallMessages.callConnectionError })
 
 
@@ -54,14 +54,23 @@ export default function Peervideo(props) {
   useEffect(() => {
     if (mediaState?.audio || mediaState.video) {
       navigator.getUserMedia(mediaState, (stream) => {
+        currentStream.current=stream
         outgoingVideoRef.current.srcObject = stream;
         outgoingMainVideoRef.current.srcObject = stream;
       });
     } else {
+      console.log(currentStream?.current?.getTracks())
+      currentStream?.current?.getVideoTracks()[0]?.stop()
       outgoingVideoRef.current.srcObject = null;
       outgoingMainVideoRef.current.srcObject = null;
     }
   }, [mediaState]);
+  useEffect(()=>{
+    if(!mediaState?.audio){
+      console.log("Je ")
+      currentStream?.current?.getAudioTracks()[0]?.stop();
+    }
+  },[mediaState?.audio])
 
   useEffect(() => {
     let peer = new Peer();
@@ -82,6 +91,7 @@ export default function Peervideo(props) {
             navigator.mozGetUserMedia;
           let call = undefined;
           getUserMedia({ video: true, audio: true }, (mediaStream) => {
+            currentStream.current=mediaStream
             call = currentPeer.current.call(peeId.data, mediaStream);
             callRef.current = call;
             setRemotePeerIdValue(call.peer);
@@ -118,6 +128,7 @@ export default function Peervideo(props) {
           video: true,
         },
         (mediaStream) => {
+          currentStream.current=mediaStream
           call.answer(mediaStream);
           const senders = call.peerConnection.getSenders();
           if (!mediaState.audio) {
@@ -146,8 +157,15 @@ export default function Peervideo(props) {
     currentPeer.current = peer;
   }, []);
 
+  // useEffect(()=>{
+  //   if(!mediaState?.video){
+  //     currentStream?.current?.getTracks()[1].stop()
+  //   }
+  // },[mediaState.video])
+
   useEffect(() => {
     if (callRef.current) {
+      console.log("HELLODS")
       let callSate = callRef.current;
       var getUserMedia =
         navigator.getUserMedia ||
@@ -163,6 +181,20 @@ export default function Peervideo(props) {
         const senders = callSate.peerConnection.getSenders();
         senders?.[0]?.replaceTrack(undefined);
         senders?.[1]?.replaceTrack(undefined);
+
+      }
+      if(mediaState?.screenshare){
+        navigator.mediaDevices.getDisplayMedia().then((stream)=>{
+          const senders = callSate.peerConnection.getSenders();
+          senders?.[1]?.replaceTrack(stream?.getVideoTracks()[0]);
+        }).catch((err)=>{console.log(err)})
+      }
+      else if(!mediaState?.screenshare && mediaState?.video){
+        getUserMedia(mediaState, (stream) => {
+          const senders = callSate.peerConnection.getSenders();
+          senders?.[0]?.replaceTrack(stream?.getAudioTracks()[0]);
+          senders?.[1]?.replaceTrack(stream?.getVideoTracks()[0]);
+        });
       }
     }
   }, [mediaState]);
@@ -245,6 +277,18 @@ export default function Peervideo(props) {
           <div
             className={` ${styles.controls} width-full flex justify-center pad-t-sm absolute z5`}
           >
+            {
+              callRef.current&& <IconButton
+              icon = {screenshare}
+              iconSeleted={screenshare}
+              default={mediaState.screenshare}
+              className={`mar-r-md ${styles.controlsButton}`}
+              onSelected={(screenshare) => {
+                setMediaState({ ...mediaState, screenshare: !screenshare });
+              }}
+            ></IconButton>
+            }
+           
             <IconButton
               default={!mediaState?.audio}
               icon={audioIcon}

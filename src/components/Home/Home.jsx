@@ -12,11 +12,8 @@ import { useNavigate, useParams } from "react-router-dom";
 export default function Home(props) {
   const videRef = useRef(null);
 
-  const [mediaState, setMediaState] = useState({
-    video: true,
-    audio: true,
-  });
-
+  const [mediaState, setMediaState] = useState({ video: false, audio: false});
+  const [stream,setStream] = useState(null)
   const params = useParams();
 
   const navigate = useNavigate();
@@ -36,10 +33,14 @@ export default function Home(props) {
   }, []);
 
   useEffect(() => {
-    if (mediaState?.audio || mediaState.video) {
-      navigator.getUserMedia(mediaState, (stream) => {
+    if(videRef && mediaState?.video){
+      navigator.getUserMedia({ audio: true, video: true}, (stream) => {
         videRef.current.srcObject = stream;
-      });
+        setStream(stream)
+      },(err)=>{console.log(err)});
+    }
+    if(!mediaState?.video && stream){
+      stream.getTracks()[1].stop()
     }
   }, [mediaState.video]);
 
@@ -79,6 +80,7 @@ export default function Home(props) {
           </div>
           <div className={`flex justify-between rel ${styles.iconContainer}`}>
             <IconButton
+              default={!mediaState.audio}
               icon={audioIcon}
               iconSeleted={audioIconSelected}
               className={"mar-r-md"}
@@ -87,6 +89,7 @@ export default function Home(props) {
               }}
             ></IconButton>
             <IconButton
+              default={!mediaState.video}
               icon={videoIcon}
               iconSeleted={videoIconSelected}
               className={"mar-r-md"}

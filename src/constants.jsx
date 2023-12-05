@@ -50,6 +50,10 @@ export const attIcon = (
   </svg>
 );
 
+export const screenshare = (<svg xmlns="http://www.w3.org/2000/svg" width="800px" height="800px" viewBox="0 0 24 24" fill="none">
+<path d="M12 16V18M16 20H12H8M16 10.5L8 10.5M16 10.5L13 13.5M16 10.5L13 7.5M20 7V6C20 5.44772 19.5523 5 19 5H5C4.44772 5 4 5.44771 4 6V15C4 15.5523 4.44772 16 5 16H19C19.5523 16 20 15.5523 20 15V11" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>)
+
 export const endCallIcon = (
   <svg className="bg-red-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="256" height="256"><linearGradient id="a" x1="13.675" x2="50.652" y1="50.431" y2="13.454" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#d3061a" className="stopColord3061a svgShape"></stop><stop offset="1" stop-color="#ff615b" className="stopColorff615b svgShape"></stop></linearGradient><path fill="#ffffff" d="M44.7 32.4c0 .8-.3 1.6-.9 2.1-.5.5-1.2.8-1.9.8h-1.6c-.8 0-1.5-.3-2-.8s-.9-1.2-.9-2v-1.1c0-.5.1-1 .4-1.5l.1-.2c.1-.1.1-.3 0-.4 0-.1-.2-.2-.3-.3l-.2-.1c-3.4-1.2-7-1.2-10.3.2l-.2.1c-.1.1-.2.1-.3.3v.4l.1.2c.2.4.3.7.3 1.1v1.1c0 .8-.3 1.6-.9 2.1-.5.5-1.2.8-1.9.8h-1.6c-1.6 0-2.8-1.2-2.9-2.7v-1.1c0-.3 0-.6.1-.9.2-.8.7-1.5 1.5-2.1 6.2-5 15.1-5.2 21.6-.5 1.4 1 1.8 2.3 1.7 2.9V31.4l.1 1z" className="colorfff svgShape"></path></svg>
 )
