@@ -14,7 +14,7 @@ const Modal = (props) => {
           <button className={'btn-reset flex flex-centered touch-space height-md-all width-md-all absolute top6 right6'} onClick={() => props.setIsOpen(false)}>
             <RiCloseLine style={{ marginBottom: "-3px" }} />
           </button>
-          <div className={"pad-t-md  pad-sm"} >{props?.children}</div>
+          <div className={"pad-t-md  pad-sm flex justify-center"} >{props?.children}</div>
         </div>
       </div>
     </div>
