@@ -197,13 +197,15 @@ export default function Peervideo(props) {
             } radius-lg overflow-hidden border border-cobalt-600 bg-white`}
         >
           {hasVideo(incommingVideo) ? (
+            <div>
+              <div style={{position:'absolute'}} className="pad-md color-cobalt-600">{window.location.href.includes('user=agent')?'User View':'Agent View'  }</div>
             <video
               height={"100%"}
               width={"100%"}
               autoPlay
               className="box-shadow4"
               ref={incommingVideo}
-            ></video>
+            ></video></div>
           ) : (
             <div>No Cam</div>
           )}
@@ -213,6 +215,7 @@ export default function Peervideo(props) {
           className={` ${hasRemote() ? styles.hidden : styles.MainVideo
             } radius-lg overflow-hidden border border-cobalt-600 bg-white`}
         >
+          <div style={{position:'absolute'}} className="pad-md color-white"></div>
           <video
             height={"100%"}
             width={"100%"}
@@ -230,6 +233,7 @@ export default function Peervideo(props) {
               !hasRemote() || !callState?.callStatus ? styles.hidden : styles.outgoing
             } mar-sm radius-lg overflow-hidden border border-cobalt-600 bg-white`}
           >
+            <div style={{position:'absolute'}} className="pad-xs type-sm color-white"> </div>
             <video
               height={"100%"}
               width={"100%"}
