@@ -68,6 +68,7 @@ export default function Home(props) {
           >
             {mediaState?.video ? (
               <video
+              playsInline
                 height={"100%"}
                 width={"100%"}
                 ref={videRef}

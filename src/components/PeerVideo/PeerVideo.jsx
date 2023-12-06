@@ -235,6 +235,7 @@ export default function Peervideo(props) {
             <div>
               <div style={{position:'absolute'}} className="pad-md color-cobalt-600">{window.location.href.includes('user=agent')?'User View':'Agent View'  }</div>
             <video
+            playsInline
               height={"100%"}
               width={"100%"}
               autoPlay
@@ -252,6 +253,7 @@ export default function Peervideo(props) {
         >
           <div style={{position:'absolute'}} className="pad-md color-white"></div>
           <video
+          playsInline
             height={"100%"}
             width={"100%"}
             className="box-shadow4"
@@ -270,6 +272,7 @@ export default function Peervideo(props) {
           >
             <div style={{position:'absolute'}} className="pad-xs type-sm color-white"> </div>
             <video
+            playsInline
               height={"100%"}
               width={"100%"}
               muted
